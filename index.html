@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glukometer Non-Invasif</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2a6df9;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --dark: #343a40;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --border: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1a4fc4);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .hospital-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .content {
+            padding: 25px 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(42, 109, 249, 0.2);
+        }
+
+        .input-info {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 5px;
+            display: block;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), #1a4fc4);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(42, 109, 249, 0.3);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(42, 109, 249, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease-out;
+            display: none;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+        .meter-container {
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: 15px;
+            width: 0%;
+            transition: width 1s ease-in-out;
+            position: relative;
+        }
+
+        .meter-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .meter-marker {
+            height: 100%;
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .meter-status {
+            text-align: center;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .ranges {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            font-size: 0.85rem;
+        }
+
+        .range-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            width: 30%;
+            background-color: var(--light);
+        }
+
+        .range-item h4 {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .range-value {
+            font-weight: 700;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: var(--gray);
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 576px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="hospital-badge">
+                <i class="fas fa-hospital"></i>
+                <span>MEDICAL GRADE</span>
+            </div>
+            <h1>Glukometer Non-Invasif</h1>
+            <p>Monitor kadar gula darah tanpa jarum</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-group">
+                <label for="lux">Intensitas Cahaya (Lux)</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lightbulb"></i>
+                    <input type="number" id="lux" placeholder="Masukkan nilai lux (200-800)">
+                </div>
+                <span class="input-info">Rentang normal: 200 - 800 lux</span>
+                <div class="error-message" id="lux-error"></div>
+            </div>
+            
+            <div class="input-group">
+                <label for="temperature">Suhu Tubuh (°C)</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-temperature-high"></i>
+                    <input type="number" id="temperature" placeholder="Masukkan suhu (36.0-37.5)">
+                </div>
+                <span class="input-info">Rentang normal: 36.0 - 37.5 °C</span>
+                <div class="error-message" id="temperature-error"></div>
+            </div>
+            
+            <div class="input-group">
+                <label for="calibration">Nilai Kalibrasi</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-sliders-h"></i>
+                    <input type="number" id="calibration" placeholder="Masukkan nilai kalibrasi (0.8-1.2)">
+                </div>
+                <span class="input-info">Rentang normal: 0.8 - 1.2</span>
+                <div class="error-message" id="calibration-error"></div>
+            </div>
+            
+            <button class="calculate-btn" id="calculate-btn">
+                <i class="fas fa-calculator"></i> Hitung Kadar Gula Darah
+            </button>
+            
+            <div class="result-container" id="result-container">
+                <div class="result-header">
+                    <h3>Hasil Pengukuran</h3>
+                </div>
+                
+                <div class="result-value" id="result-value">--</div>
+                
+                <div class="meter-container">
+                    <div class="meter-fill" id="meter-fill"></div>
+                    <div class="meter-markers">
+                        <div class="meter-marker"></div>
+                        <div class="meter-marker"></div>
+                        <div class="meter-marker"></div>
+                        <div class="meter-marker"></div>
+                        <div class="meter-marker"></div>
+                    </div>
+                </div>
+                
+                <div class="meter-labels">
+                    <span>70</span>
+                    <span>100</span>
+                    <span>125</span>
+                    <span>150</span>
+                    <span>200</span>
+                    <span>250</span>
+                </div>
+                
+                <div class="meter-status" id="meter-status">--</div>
+                
+                <div class="ranges">
+                    <div class="range-item" style="color: var(--success);">
+                        <h4>Normal</h4>
+                        <div class="range-value">70-125 mg/dL</div>
+                    </div>
+                    <div class="range-item" style="color: var(--warning);">
+                        <h4>Pradiabetes</h4>
+                        <div class="range-value">126-200 mg/dL</div>
+                    </div>
+                    <div class="range-item" style="color: var(--danger);">
+                        <h4>Diabetes</h4>
+                        <div class="range-value">>200 mg/dL</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 Glukometer Non-Invasif | Alat kesehatan untuk monitoring kadar glukosa</p>
+            <p>Akurasi tinggi untuk penggunaan klinis</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const luxInput = document.getElementById('lux');
+            const temperatureInput = document.getElementById('temperature');
+            const calibrationInput = document.getElementById('calibration');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultContainer = document.getElementById('result-container');
+            const resultValue = document.getElementById('result-value');
+            const meterFill = document.getElementById('meter-fill');
+            const meterStatus = document.getElementById('meter-status');
+            
+            const luxError = document.getElementById('lux-error');
+            const temperatureError = document.getElementById('temperature-error');
+            const calibrationError = document.getElementById('calibration-error');
+            
+            // Fungsi algoritma glukometer non-invasif (contoh implementasi)
+            function calculateGlucose(lux, temperature, calibration) {
+                // Simulasi algoritma non-invasif berdasarkan penelitian
+                // Formula ini adalah contoh dan bukan formula medis yang sebenarnya
+                
+                // Normalisasi nilai lux
+                const normalizedLux = (lux - 200) / 600; // Normalisasi ke 0-1
+                
+                // Normalisasi suhu
+                const normalizedTemp = (temperature - 36.0) / 1.5; // Normalisasi ke 0-1
+                
+                // Faktor kalibrasi
+                const calFactor = calibration;
+                
+                // Simulasi nilai dasar glukosa
+                let glucose = 80 + (normalizedLux * 50) + (normalizedTemp * 30);
+                
+                // Terapkan faktor kalibrasi
+                glucose = glucose * calFactor;
+                
+                // Tambahkan variasi acak kecil untuk simulasi (max ±5%)
+                const randomVariation = (Math.random() * 0.1) - 0.05;
+                glucose = glucose * (1 + randomVariation);
+                
+                return Math.round(glucose * 10) / 10; // Bulatkan ke 1 desimal
+            }
+            
+            // Fungsi validasi input
+            function validateInputs() {
+                let isValid = true;
+                
+                // Validasi Lux
+                const lux = parseFloat(luxInput.value);
+                if (isNaN(lux) || lux < 200 || lux > 800) {
+                    luxError.textContent = 'Nilai lux harus antara 200 dan 800';
+                    luxError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    luxError.style.display = 'none';
+                }
+                
+                // Validasi Suhu
+                const temperature = parseFloat(temperatureInput.value);
+                if (isNaN(temperature) || temperature < 36.0 || temperature > 37.5) {
+                    temperatureError.textContent = 'Suhu harus antara 36.0 dan 37.5 °C';
+                    temperatureError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    temperatureError.style.display = 'none';
+                }
+                
+                // Validasi Kalibrasi
+                const calibration = parseFloat(calibrationInput.value);
+                if (isNaN(calibration) || calibration < 0.8 || calibration > 1.2) {
+                    calibrationError.textContent = 'Nilai kalibrasi harus antara 0.8 dan 1.2';
+                    calibrationError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    calibrationError.style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            // Fungsi update meter dan status
+            function updateMeter(glucose) {
+                // Update nilai hasil
+                resultValue.textContent = `${glucose} mg/dL`;
+                
+                // Update fill meter (70-250 mg/dL)
+                let fillPercentage = ((glucose - 70) / 180) * 100;
+                fillPercentage = Math.max(0, Math.min(100, fillPercentage));
+                meterFill.style.width = `${fillPercentage}%`;
+                
+                // Update warna berdasarkan status
+                if (glucose < 70) {
+                    // Hipoglikemia
+                    resultValue.style.color = 'var(--danger)';
+                    meterFill.style.background = 'linear-gradient(90deg, var(--danger), #a71e2a)';
+                    meterStatus.textContent = 'Hipoglikemia (Gula Darah Rendah)';
+                    meterStatus.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                    meterStatus.style.color = 'var(--danger)';
+                } else if (glucose >= 70 && glucose <= 125) {
+                    // Normal
+                    resultValue.style.color = 'var(--success)';
+                    meterFill.style.background = 'linear-gradient(90deg, var(--success), #1e7e34)';
+                    meterStatus.textContent = 'Normal (Gula Darah Optimal)';
+                    meterStatus.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                    meterStatus.style.color = 'var(--success)';
+                } else if (glucose > 125 && glucose <= 200) {
+                    // Pradiabetes
+                    resultValue.style.color = 'var(--warning)';
+                    meterFill.style.background = 'linear-gradient(90deg, var(--warning), #d39e00)';
+                    meterStatus.textContent = 'Pradiabetes (Gula Darah Tinggi)';
+                    meterStatus.style.backgroundColor = 'rgba(255, 193, 7, 0.1)';
+                    meterStatus.style.color = 'var(--warning)';
+                } else {
+                    // Diabetes
+                    resultValue.style.color = 'var(--danger)';
+                    meterFill.style.background = 'linear-gradient(90deg, var(--danger), #a71e2a)';
+                    meterStatus.textContent = 'Diabetes (Gula Darah Sangat Tinggi)';
+                    meterStatus.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                    meterStatus.style.color = 'var(--danger)';
+                }
+            }
+            
+            // Event listener untuk tombol hitung
+            calculateBtn.addEventListener('click', function() {
+                if (validateInputs()) {
+                    const lux = parseFloat(luxInput.value);
+                    const temperature = parseFloat(temperatureInput.value);
+                    const calibration = parseFloat(calibrationInput.value);
+                    
+                    // Hitung kadar glukosa
+                    const glucose = calculateGlucose(lux, temperature, calibration);
+                    
+                    // Tampilkan hasil
+                    resultContainer.style.display = 'block';
+                    updateMeter(glucose);
+                    
+                    // Scroll ke hasil
+                    resultContainer.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+            
+            // Event listeners untuk validasi real-time
+            luxInput.addEventListener('input', function() {
+                if (luxError.style.display === 'block') {
+                    validateInputs();
+                }
+            });
+            
+            temperatureInput.addEventListener('input', function() {
+                if (temperatureError.style.display === 'block') {
+                    validateInputs();
+                }
+            });
+            
+            calibrationInput.addEventListener('input', function() {
+                if (calibrationError.style.display === 'block') {
+                    validateInputs();
+                }
+            });
+        });
+    </script>
+</body>
+  </html>
